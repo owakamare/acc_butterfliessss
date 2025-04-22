@@ -1,39 +1,96 @@
 <script src="https://cdn.jsdelivr.net/gh/netizenorg/netnet-standard-library/build/nn.min.js"></script>
 <script>
 /* global nn */
+const gif = 'butt_4.gif'
+const COLOR = 'aliceblue'
+let offsetLift = 0
+let liftDirection = -1
+let offsetDrag = 0
+let dragDirection = 1
 
-function createDot(t) {
-  // Parametric heart equations
+function sleep (ms) {
+    return new Promise(resolve => setTimeout(resolve, ms))
+  }
+  
+function createHeart(t) {
+  
+  
   const x = 16 * Math.pow(Math.sin(t), 3);
   const y = 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t);
 
-  // Scale and center for browser
   const scale = 10;
-  const offsetX = 300;
-  const offsetY = 300;
-
-  const left = offsetX + scale * x;
-  const top  = offsetY - scale * y; // flip y because CSS y is downward
-
-  nn.create('span')
-    .content('❤️')
+  const offsetX = (nn.width / 3);
+  const offsetY = (nn.height / 2.5);
+  const left = offsetX + scale * x + offsetDrag;
+  const top  = offsetY - scale * y + offsetLift; // we're flipping y-coords; up->down
+  
+  nn.create('img')
+    .set({src: gif})
     .css({
       position: 'absolute',
       fontSize: '16px',
-      left: `${left}px`,
-      top: `${top}px`
+      left: `${left-150}px`,
+      top: `${top+150}px`
+    })
+    .addTo('body');
+
+  nn.create('img')
+    .set({src: gif})
+    .css({
+      position: 'absolute',
+      fontSize: '16px',
+      left: `${left + 80}px`,
+      top: `${top-150}px`
     })
     .addTo('body');
 }
 
-function setup() {
-  const steps = 50; // smoother shape
-  const dt = (2 * Math.PI) / steps;
+
+async function setup() {
+
+  nn.get('body').css({
+      backgroundColor: COLOR,
+      overflow: 'hidden'})
+  const steps = 50; 
+  const delta_t = (2 * Math.PI) / steps;
   for (let i = 0; i < steps; i++) {
-    const t = i * dt;
-    createDot(t);
+    const t = i * delta_t;
+    await sleep(100)
+    createHeart(t);
   }
+
+}
+  
+function animateLift() {
+  offsetLift += 1.2 * liftDirection;
+  if (offsetLift < -50 || offsetLift > 50) {
+    liftDirection *= -1; // reverse direction
+  }
+
+  offsetDrag += 1 * dragDirection;
+  if (offsetDrag > 50 || offsetDrag < -50) {
+    dragDirection *= -1; // reverse direction
+  }
+
+  document.querySelectorAll('img').forEach(img => {
+    const currentTop = parseFloat(img.style.top) || 0;
+    const currentLeft = parseFloat(img.style.left) || 0;
+
+    img.style.top = `${currentTop + 1.2 * liftDirection}px`;
+    img.style.left = `${currentLeft + 1 * dragDirection}px`;
+  });
+
+  requestAnimationFrame(animateLift);
 }
 
+
+requestAnimationFrame(animateLift);
+
+
 nn.on('load', setup);
+
+  
+
+  
 </script>
+
