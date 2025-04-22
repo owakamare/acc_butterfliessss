@@ -1,0 +1,39 @@
+<script src="https://cdn.jsdelivr.net/gh/netizenorg/netnet-standard-library/build/nn.min.js"></script>
+<script>
+/* global nn */
+
+function createDot(t) {
+  // Parametric heart equations
+  const x = 16 * Math.pow(Math.sin(t), 3);
+  const y = 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t);
+
+  // Scale and center for browser
+  const scale = 10;
+  const offsetX = 300;
+  const offsetY = 300;
+
+  const left = offsetX + scale * x;
+  const top  = offsetY - scale * y; // flip y because CSS y is downward
+
+  nn.create('span')
+    .content('❤️')
+    .css({
+      position: 'absolute',
+      fontSize: '16px',
+      left: `${left}px`,
+      top: `${top}px`
+    })
+    .addTo('body');
+}
+
+function setup() {
+  const steps = 50; // smoother shape
+  const dt = (2 * Math.PI) / steps;
+  for (let i = 0; i < steps; i++) {
+    const t = i * dt;
+    createDot(t);
+  }
+}
+
+nn.on('load', setup);
+</script>
